@@ -132,7 +132,7 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
 	}
 
 	// Get our key pair and our own DN (not the remote server's DN) from the keystore.
-	PrivateKey privateKey = keyStore.getEntry(alias, keyStorePassword).getPrivateKey();
+	// PrivateKey privateKey = keyStore.getEntry(alias, keyStorePassword).getPrivateKey();
 	iaik.x509.X509Certificate certificate = new iaik.x509.X509Certificate(keyStore.getCertificate(alias).getEncoded());
 	PublicKey publicKey = certificate.getPublicKey();
 	Principal ourDN = certificate.getSubjectDN(); // or should it be issuer? -TD
@@ -151,15 +151,15 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
 	
 	final KeyManagerFactory keyManagerFactory =
 	    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-	keyManagerFactory.init(serverKeyStore, emptyPassword);
+	// keyManagerFactory.init(serverKeyStore, emptyPassword);
 
-	m_sslContext = SSLContext.getInstance("SSL");
-	m_sslContext.init(keyManagerFactory.getKeyManagers(),
-			  new TrustManager[] { new TrustEveryone() },
-			  null);
+	// m_sslContext = SSLContext.getInstance("SSL");
+	// m_sslContext.init(keyManagerFactory.getKeyManagers(),
+	// 		  new TrustManager[] { new TrustEveryone() },
+	// 		  null);
 
-	m_clientSocketFactory = m_sslContext.getSocketFactory();
-	m_serverSocketFactory = m_sslContext.getServerSocketFactory();
+	// m_clientSocketFactory = m_sslContext.getSocketFactory();
+	// m_serverSocketFactory = m_sslContext.getServerSocketFactory();
 
 	/**/
     }
