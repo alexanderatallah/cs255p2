@@ -54,7 +54,7 @@ class MITMAdminServer implements Runnable
 				String password = userPwdMatcher.group(1);
 				boolean authenticated = false;
 				// TODO(cs255): authenticate the user
-				if (BCrypt.checkpw(password, "bob")) {
+				if (BCrypt.checkpw(password, getHash())) {
 					authenticated = true;
 					num_requests++; // is this the right spot? -TD
 				}
@@ -81,6 +81,13 @@ class MITMAdminServer implements Runnable
 			PrintWriter writer = new PrintWriter( m_socket.getOutputStream() );
 			writer.println(str);
 			writer.flush();
+		}
+
+		private String getHash() throws IOException {
+			BufferedReader br = new BufferedReader(new FileReader("pwdFile"));
+			String line = br.readLine();
+			br.close();
+			return line;
 		}
 		
 		private void doCommand( String cmd ) throws IOException {
