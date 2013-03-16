@@ -119,6 +119,7 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
 	final String keyStoreType = System.getProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY, "jks");
 	// The "alias" is the name of the key pair in our keystore. (default: "mykey")
 	String alias = System.getProperty(JSSEConstants.KEYSTORE_ALIAS_PROPERTY);
+	System.err.println("alias = " + alias);
 
 	final KeyStore keyStore;
 	

@@ -24,6 +24,7 @@ import javax.net.ssl.SSLSocket;
 
 import iaik.asn1.ObjectID;
 import iaik.asn1.structures.Name;
+import iaik.x509.X509Certificate;
 
 
 /** 
