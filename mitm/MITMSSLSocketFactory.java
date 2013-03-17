@@ -107,7 +107,7 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
     public MITMSSLSocketFactory(Principal serverDN, BigInteger serialNumber)
 	throws IOException,GeneralSecurityException, Exception
     {
-	this();
+	// this();
         // TODO(cs255): replace this with code to generate a new (forged) server certificate with a DN of serverDN
         //   and a serial number of serialNumber.
 
@@ -139,27 +139,31 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
 
 	// . . .
 
-	iaik.x509.X509Certificate serverCertificate = new iaik.x509.X509Certificate();
+	iaik.x509.X509Certificate serverCertificate = new iaik.x509.X509Certificate(keyStore.getCertificate(alias).getEncoded());
 	serverCertificate.setIssuerDN(serverDN);
-	serverCertificate.setPublicKey(publicKey);	
+  serverCertificate.setSerialNumber(serialNumber);
 
-	// . . .
+  // Certificate ourCert = ks.getCertificate(alias);
+  // serverCertificate.setIssuerDN(new iaik.x509.X509Certificate(ourCert.getEncoded()).getIssuerDN());
+  serverCertificate.setPublicKey(publicKey);
+  serverCertificate.sign(AlgorithmID.sha256WithRSAEncryption, privateKey);
 
-	KeyStore serverKeyStore = KeyStore.getInstance(keyStoreType);
-
-	// . . .
+	KeyStore serverKeyStore = ks;
+  serverKeyStore.setCertificateEntry("forgedCert", certificate); 
+  serverKeyStore.setKeyEntry("forgedCertKey", privateKey, keyStorePassword, new Certificate[] { serverCertificate });
+  serverKeyStore.deleteEntry(alias);
 	
 	final KeyManagerFactory keyManagerFactory =
 	    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-	// keyManagerFactory.init(serverKeyStore, emptyPassword);
+	keyManagerFactory.init(serverKeyStore, keyStorePassword);
 
-	// m_sslContext = SSLContext.getInstance("SSL");
-	// m_sslContext.init(keyManagerFactory.getKeyManagers(),
-	// 		  new TrustManager[] { new TrustEveryone() },
-	// 		  null);
+	m_sslContext = SSLContext.getInstance("SSL");
+	m_sslContext.init(keyManagerFactory.getKeyManagers(),
+			  new TrustManager[] { new TrustEveryone() },
+			  null);
 
-	// m_clientSocketFactory = m_sslContext.getSocketFactory();
-	// m_serverSocketFactory = m_sslContext.getServerSocketFactory();
+	m_clientSocketFactory = m_sslContext.getSocketFactory();
+	m_serverSocketFactory = m_sslContext.getServerSocketFactory();
 
 	/**/
     }
