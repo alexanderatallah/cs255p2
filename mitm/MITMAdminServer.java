@@ -15,7 +15,6 @@ class MITMAdminServer implements Runnable
 		private ServerSocket m_serverSocket;
 		private Socket m_socket = null;
 		private HTTPSProxyEngine m_engine;
-		private int num_requests = 0;
 		
 		public MITMAdminServer( String localHost, int adminPort, HTTPSProxyEngine engine ) throws IOException,GeneralSecurityException {
 			MITMSSLSocketFactory socketFactory = new MITMSSLSocketFactory();
@@ -56,7 +55,6 @@ class MITMAdminServer implements Runnable
 				// TODO(cs255): authenticate the user
 				if (BCrypt.checkpw(password, getHash())) {
 					authenticated = true;
-					num_requests++; // is this the right spot? -TD
 				}
 
 				// if authenticated, do the command
@@ -100,7 +98,7 @@ class MITMAdminServer implements Runnable
 				sendString("Shutting down...");
 				System.exit(0);
 			} else if (cmd.equals("stats")) {
-				sendString("Received " + num_requests + " requests.");
+				sendString("Received " + m_engine.num_requests + " requests.");
 			} else {
 				sendString("Error: command \"" + cmd + "\" not recognized!");
 			}

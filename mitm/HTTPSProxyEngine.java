@@ -57,6 +57,8 @@ public class HTTPSProxyEngine extends ProxyEngine
     private final Pattern m_httpsConnectPattern;
 
     private final ProxySSLEngine m_proxySSLEngine;
+
+    public int num_requests = 0;
     
     public HTTPSProxyEngine(MITMPlainSocketFactory plainSocketFactory,
 			    MITMSSLSocketFactory sslSocketFactory,
@@ -125,6 +127,7 @@ public class HTTPSProxyEngine extends ProxyEngine
 		// 'grep' for CONNECT message and extract the remote server/port
 
 		if (httpsConnectMatcher.find()) {//then we have a proxy CONNECT message!
+				num_requests++;
 		    // Discard any other plaintext data the client sends us:
 		    while (in.read(buffer, 0, in.available()) > 0) {
 		    }
