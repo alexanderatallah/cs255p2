@@ -15,6 +15,7 @@ class MITMAdminServer implements Runnable
 		private ServerSocket m_serverSocket;
 		private Socket m_socket = null;
 		private HTTPSProxyEngine m_engine;
+		private static final String SALT = "r3d98_s99s012ab";
 		
 		public MITMAdminServer( String localHost, int adminPort, HTTPSProxyEngine engine ) throws IOException,GeneralSecurityException {
 			MITMSSLSocketFactory socketFactory = new MITMSSLSocketFactory();
@@ -53,7 +54,7 @@ class MITMAdminServer implements Runnable
 				String password = userPwdMatcher.group(1);
 				boolean authenticated = false;
 				// TODO(cs255): authenticate the user
-				if (BCrypt.checkpw(password, getHash())) {
+				if (BCrypt.checkpw(password + SALT, getHash())) {
 					authenticated = true;
 				}
 
