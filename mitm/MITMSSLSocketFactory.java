@@ -135,23 +135,29 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
 	PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, keyStorePassword);
 	iaik.x509.X509Certificate certificate = new iaik.x509.X509Certificate(keyStore.getCertificate(alias).getEncoded());
 	PublicKey publicKey = certificate.getPublicKey();
-	Principal ourDN = certificate.getSubjectDN(); // or should it be issuer? -TD
+	Principal ourDN = certificate.getIssuerDN();
 
 	// . . .
 
 	iaik.x509.X509Certificate serverCertificate = new iaik.x509.X509Certificate(keyStore.getCertificate(alias).getEncoded());
-	serverCertificate.setIssuerDN(serverDN);
+  serverCertificate.setIssuerDN(serverDN);
+	serverCertificate.setSubjectDN(serverDN);
   serverCertificate.setSerialNumber(serialNumber);
 
-  // Certificate ourCert = ks.getCertificate(alias);
-  // serverCertificate.setIssuerDN(new iaik.x509.X509Certificate(ourCert.getEncoded()).getIssuerDN());
+  Calendar before = Calendar.getInstance();
+  before.add(Calendar.YEAR, -1);
+  serverCertificate.setValidNotBefore(before.getTime());
+  Calendar after = Calendar.getInstance();
+  after.add(Calendar.YEAR, 1);
+  serverCertificate.setValidNotAfter(after.getTime());
+
   serverCertificate.setPublicKey(publicKey);
-  serverCertificate.sign(AlgorithmID.sha256WithRSAEncryption, privateKey);
+  serverCertificate.sign(AlgorithmID.dsaWithSHA1, privateKey);
 
 	KeyStore serverKeyStore = ks;
   serverKeyStore.setCertificateEntry("forgedCert", certificate); 
   serverKeyStore.setKeyEntry("forgedCertKey", privateKey, keyStorePassword, new Certificate[] { serverCertificate });
-  serverKeyStore.deleteEntry(alias);
+  // serverKeyStore.deleteEntry(alias);
 	
 	final KeyManagerFactory keyManagerFactory =
 	    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
