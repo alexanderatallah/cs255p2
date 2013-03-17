@@ -135,34 +135,34 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
 	PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, keyStorePassword);
 	iaik.x509.X509Certificate certificate = new iaik.x509.X509Certificate(keyStore.getCertificate(alias).getEncoded());
 	PublicKey publicKey = certificate.getPublicKey();
-	// Principal ourDN = certificate.getIssuerDN();
+	Principal ourDN = certificate.getIssuerDN();
 
-	// . . .
+	// . . . 
 
 	iaik.x509.X509Certificate serverCertificate = new iaik.x509.X509Certificate(keyStore.getCertificate(alias).getEncoded());
-  // serverCertificate.setIssuerDN(ourDN);
+  
+  serverCertificate.setIssuerDN(ourDN);
 	serverCertificate.setSubjectDN(serverDN);
   serverCertificate.setSerialNumber(serialNumber);
 
-  Calendar before = Calendar.getInstance();
-  before.add(Calendar.YEAR, -1);
-  serverCertificate.setValidNotBefore(before.getTime());
+  GregorianCalendar date1 = new GregorianCalendar(2010, 1, 1);
+  serverCertificate.setValidNotBefore(date1.getTime());
 
-  Calendar after = Calendar.getInstance();
-  after.add(Calendar.YEAR, 5);
-  serverCertificate.setValidNotAfter(after.getTime());
+  GregorianCalendar date2 = new GregorianCalendar(2020, 1, 1);
+  serverCertificate.setValidNotAfter(date2.getTime());
 
   serverCertificate.setPublicKey(publicKey);
-  serverCertificate.sign(AlgorithmID.dsaWithSHA1, privateKey);
+  serverCertificate.sign(AlgorithmID.sha256WithRSAEncryption, privateKey);
 
-	KeyStore serverKeyStore = ks;
-  serverKeyStore.setCertificateEntry("forgedCert", certificate); 
-  serverKeyStore.setKeyEntry("forgedCertKey", privateKey, keyStorePassword, new Certificate[] { serverCertificate });
-  // serverKeyStore.deleteEntry(alias);
+	KeyStore serverKeyStore = KeyStore.getInstance(keyStoreType);;
+  serverKeyStore.load(null, null);
+  // serverKeyStore.setCertificateEntry("forgedCert", serverCertificate); 
+  char [] pass = "".toCharArray();
+  serverKeyStore.setKeyEntry("forgedCertKey", privateKey, pass, new Certificate[] { serverCertificate });
 	
 	final KeyManagerFactory keyManagerFactory =
 	    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-	keyManagerFactory.init(serverKeyStore, keyStorePassword);
+	keyManagerFactory.init(serverKeyStore, pass);
 
 	m_sslContext = SSLContext.getInstance("SSL");
 	m_sslContext.init(keyManagerFactory.getKeyManagers(),
